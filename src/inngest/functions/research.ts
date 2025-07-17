@@ -194,13 +194,15 @@ const generateResearchPlanStep = async (
 			},
 			schema: zodToJsonSchema(ResearchPlanFeedbackSchema),
 		});
-		const { data: feedbackData } = await step.waitForEvent<{
+		const feedbackEvent = await step.waitForEvent<{
 			data: ResearchPlanFeedback;
 		}>(`wait-for-plan-feedback-${_iteration}`, {
 			event: "research.plan.feedback",
 			timeout: "30m",
 			if: `async.data.uuid == "${confirmationUuid}"`,
 		});
+		
+		const feedbackData = feedbackEvent?.data;
 
 		await logger({
 			message: "Received plan feedback",
@@ -377,13 +379,15 @@ const executeResearchPlanStep = async (
 			},
 			schema: zodToJsonSchema(ResearchExecutionFeedbackSchema),
 		});
-		const { data: feedbackData } = await step.waitForEvent<{
+		const feedbackEvent = await step.waitForEvent<{
 			data: ResearchExecutionFeedback;
 		}>(`wait-for-execution-feedback-${_iteration}`, {
 			event: "research.execution.feedback",
 			timeout: "30m",
 			if: `async.data.uuid == "${confirmationUuid}"`,
 		});
+		
+		const feedbackData = feedbackEvent?.data;
 
 		await logger({
 			message: "Received execution feedback",
@@ -485,7 +489,6 @@ export const research = inngest.createFunction(
 			context,
 			request,
 		);
-		console.log("plan", plan);
 		const execution = await executeResearchPlanStep(
 			step as StepTools,
 			logger,
@@ -494,7 +497,6 @@ export const research = inngest.createFunction(
 			request.theme,
 			plan,
 		);
-		console.log("execution", execution);
 
 		await logger({
 			message: "Research completed",
