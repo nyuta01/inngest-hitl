@@ -17,9 +17,9 @@ export function TimelineItem({ message, isLast, onMessageUpdate }: TimelineItemP
   const renderFormattedDetails = (details: Record<string, unknown>) => {
     // Check if this is a complete research result (check first)
     if (details.execution && details.plan && details.context) {
-      const context = details.context as any
-      const plan = details.plan as any
-      const execution = details.execution as any
+      const context = details.context as { request?: { theme?: string } }
+      const plan = details.plan as { methods?: string[]; expectedOutcomes?: string; reasoning?: string }
+      const execution = details.execution as { content?: string; reasoning?: string }
       
       return (
         <ResearchCompleteDisplay 
@@ -32,12 +32,12 @@ export function TimelineItem({ message, isLast, onMessageUpdate }: TimelineItemP
     
     // Check if this is just a research plan
     if (details.plan && typeof details.plan === 'object' && !details.execution) {
-      return <ResearchPlanDisplay plan={details.plan as any} />
+      return <ResearchPlanDisplay plan={details.plan as { methods?: string[]; expectedOutcomes?: string; reasoning?: string }} />
     }
     
     // Check if this is just a research execution
     if (details.execution && typeof details.execution === 'object' && !details.plan) {
-      return <ResearchExecutionDisplay execution={details.execution as any} />
+      return <ResearchExecutionDisplay execution={details.execution as { content?: string; reasoning?: string }} />
     }
     
     // Check if details only contains status or error
